@@ -1,0 +1,29 @@
+[
+	{
+		"id": 1,
+		"title": "soy un titulo 1",
+		"description": "soy una descripcion",
+		"price": 20,
+		"thumbnail": "no image",
+		"code": "sdasd1651",
+		"stock": 4
+	},
+	{
+		"id": 3,
+		"title": "soy un titulo 3",
+		"description": "soy una descripcion",
+		"price": 20,
+		"thumbnail": "no image",
+		"code": "sdasd16513",
+		"stock": 4
+	},
+	{
+		"id": 1,
+		"title": "soy un titulo 2",
+		"description": "soy una descripcion",
+		"price": 20,
+		"thumbnail": "no image",
+		"code": "sdasd16512",
+		"stock": 4
+	}
+]
