@@ -1,29 +1,111 @@
 [
 	{
-		"id": 1,
-		"title": "soy un titulo 1",
-		"description": "soy una descripcion",
-		"price": 20,
-		"thumbnail": "no image",
-		"code": "sdasd1651",
-		"stock": 4
-	},
-	{
 		"id": 3,
 		"title": "soy un titulo 3",
 		"description": "soy una descripcion",
 		"price": 20,
 		"thumbnail": "no image",
-		"code": "sdasd16513",
-		"stock": 4
+		"code": "sdasdqwe512",
+		"stock": 3
 	},
 	{
-		"id": 1,
-		"title": "soy un titulo 2",
+		"id": 4,
+		"title": "soy un titulo 4",
 		"description": "soy una descripcion",
 		"price": 20,
 		"thumbnail": "no image",
-		"code": "sdasd16512",
-		"stock": 4
+		"code": "sdasd16tyu2",
+		"stock": 3
+	},
+	{
+		"id": 5,
+		"title": "soy un titulo 5",
+		"description": "soy una descripcion",
+		"price": 20,
+		"thumbnail": "no image",
+		"code": "sdasd16xcv12",
+		"stock": 3
+	},
+	{
+		"id": 6,
+		"title": "soy un titulo 6",
+		"description": "soy una descripcion",
+		"price": 20,
+		"thumbnail": "no image",
+		"code": "sdasd1sdg12",
+		"stock": 3
+	},
+	{
+		"id": 7,
+		"title": "soy un titulo 7",
+		"description": "soy una descripcion",
+		"price": 20,
+		"thumbnail": "no image",
+		"code": "sdasd16asd2",
+		"stock": 3
+	},
+	{
+		"id": 8,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 9,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 10,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 11,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 12,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 13,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 14,
+		"title": "Nuevo Producto",
+		"description": "Descripci�n del nuevo producto",
+		"price": 50,
+		"code": "abc123",
+		"stock": 10
+	},
+	{
+		"id": 15,
+		"title": "Producto de ejemplo",
+		"description": "Descripción del producto",
+		"price": 99.99,
+		"code": "ABC123",
+		"stock": 10
 	}
 ]

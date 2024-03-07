@@ -1,12 +1,13 @@
 const fs = require('fs')
+const express = require('express')
+const router = express.Router()
 
-//!Cmabios generales: reemplace funciones sync por fs.promises. y la funcion que corresponda.
+
 
 class ProductManager {
   #ultimoId = 1
 
   constructor(path) {
-      //!El path por parametros y se inicializa dentro del constructor
       this.path = path
 
   }
@@ -21,65 +22,70 @@ class ProductManager {
           return []
       }
   }
+   // Método para obtener todos los productos con get para la ruta /api/products.
+   async getAllProducts(req, res) {
+    try {
+        const limit = parseInt(req.query.limit)
+        const products = await this.cargarProductosDesdeArchivo()
+
+        if (limit) {
+            const prods = products.slice(0, limit)
+            return res.json(prods)
+        }
+
+        return res.json(products)
+    } catch (error) {
+        console.error('Error al obtener todos los productos:', error)
+        res.status(500).send('Error al obtener todos los productos')
+    }
+}
 
   async getProducts() {
       const products = await this.cargarProductosDesdeArchivo()
       return products
   }
 
-  #getNuevoId() {
-      const id = this.#ultimoId
-      this.#ultimoId += 1
-      return id
-  }
 
   //La funcion addProducts primero valida y luego hace un push de los productos.
 
   async addProducts({ title, description, price, thumbnail, code, stock }) {
-      const products = await this.getProducts()
-      console.log("prods------------------\n", products)
-      //verificacion del campo code.
+    try {
+        // Leer productos actuales del archivo
+        const products = await this.cargarProductosDesdeArchivo()
 
-      const ProductCode = products.some(prod => prod.code === code)
+        // Obtener el ID más alto actualmente en uso
+        const highestId = Math.max(...products.map(prod => prod.id))
 
-      if (ProductCode) {
-          return console.error(`el producto ${code} ya existe`)
-      }
+        // Crear el nuevo producto con un ID único y uno mayor que el ID más alto actualmente en uso
+        const newProduct = {
+            id: highestId + 1,
+            title,
+            description,
+            price,
+            thumbnail,
+            code,
+            stock
+        }
 
-      //verificacion de las propiedades del producto.
+        products.push(newProduct)
 
-      if (!title || !description || !price || !thumbnail || !code || !stock) {
-          return console.log("Faltan propiedades del producto")
-      }
+        await this.guardarProductosEnArchivo(products)
 
-      const product = {
-          id: this.#getNuevoId(),
-          title,
-          description,
-          price,
-          thumbnail,
-          code,
-          stock
-      }
+        console.log('Producto agregado correctamente.')
+    } catch (error) {
+        console.error('Error al agregar el producto:', error)
+        throw error
+    }
+}
 
-      products.push(product)
-
-      await this.guardarProductosEnArchivo(products)
-
-  }
-
- //!Modificacion de la funcion para que reciba los productos por parametros y reescriba el archivo con los nuevos datos
-  async guardarProductosEnArchivo(products) {
-      //! cambie el 2 por \t
-
-      await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'), (err) => {
-          if (err) {
-              console.error('Error al guardar productos:', err)
-          } else {
-              console.log('Productos guardados en el archivo products.json')
-          }
-      })
-  }
+ async guardarProductosEnArchivo(products) {
+    try {
+        await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'))
+        console.log('Productos guardados en el archivo products.json')
+    } catch (err) {
+        console.error('Error al guardar productos:', err)
+    }
+}
 
   async getProductsById(id) {
       const prods = await this.getProducts()
@@ -99,7 +105,7 @@ class ProductManager {
       const productIndex = prods.findIndex(prod => prod.id === id)
       
       if (productIndex !== -1) {
-          //! Uso el spread operator para asignarle a un objeto ya existente nuevas propiedades
+        
           prods[productIndex] = { ...prods[productIndex], ...updates }
           await this.guardarProductosEnArchivo(prods)
           console.log(`Producto con ID ${id} actualizado`)
@@ -128,6 +134,11 @@ class ProductManager {
       console.log("Productos después de la eliminación:", prods)
   }
 
+  router() {
+    router.get('/products', this.getAllProducts.bind(this))
+    return router
+}
+
 
 }
 
@@ -136,13 +147,9 @@ module.exports = ProductManager
 //? ----------------- Test --------------------
 
 const main = async () => {
+    
   const productManager = new ProductManager("products.json")
   console.log(await productManager.getProducts())
-
-  await productManager.addProducts({ title: "soy un titulo 1", description: "soy una descripcion", price: 20, thumbnail: "no image", code: "sdasd1651", stock: 4 }) // producto #1
-  await productManager.addProducts({ title: "soy un titulo 2", description: "soy una descripcion", price: 20, thumbnail: "no image", code: "sdasd16512", stock: 4 }) // producto #1
-  await productManager.addProducts({ title: "soy un titulo 3", description: "soy una descripcion", price: 20, thumbnail: "no image", code: "sdasd16513", stock: 4 }) // producto #1
-
 
   console.log(await productManager.getProducts())
   console.log(await productManager.getProductsById(1))
