@@ -1,15 +1,16 @@
 const express = require('express')
-const cartRouter = require('./cartRouter')
 const bodyParser = require('body-parser')
 const ProductManager = require('./productManager')
+const CartManager = require('./CartManager')
 
 const app = express()
-app.use(express.json())
 const productManager = new ProductManager("products.json")
-
+const cartManager = new CartManager()
 
 app.use(bodyParser.json())
+const cartRouter = cartManager.router()
 app.use('/api/carts', cartRouter)
+
 
 // Metodo POST para agregar un nuevo producto
 app.post('/', async (req, res) => {
