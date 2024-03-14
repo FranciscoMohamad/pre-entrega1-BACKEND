@@ -8,12 +8,13 @@ const productManager = new ProductManager("products.json")
 const cartManager = new CartManager()
 
 app.use(bodyParser.json())
-const cartRouter = cartManager.router()
+
+// Definir el enrutador de carritos
+const cartRouter = cartManager.getRouter()
 app.use('/api/carts', cartRouter)
 
-
-// Metodo POST para agregar un nuevo producto
-app.post('/', async (req, res) => {
+// Método POST para agregar un nuevo producto
+app.post('/api/products', async (req, res) => {
     try {
         const requiredFields = ['title', 'description', 'code', 'price', 'status', 'stock', 'category']
         for (const field of requiredFields) {
@@ -30,7 +31,7 @@ app.post('/', async (req, res) => {
 
         const { title, description, code, price, status, stock, category, thumbnails } = req.body
 
-        // Cnuevo producto con id autogenerado
+        // Nuevo producto con id autogenerado
         const newProduct = {
             id: newId,
             title,
@@ -47,86 +48,69 @@ app.post('/', async (req, res) => {
 
         res.status(201).send('Producto agregado correctamente')
     } catch (error) {
-        console.error('Error al procesar la solicitud POST en la ruta raíz:', error)
-        res.status(500).send('Error interno del servidor')
+        console.error('Error al procesar la solicitud POST de productos:', error)
+        res.status(500).send('Error interno del servidor al agregar un producto')
     }
 })
 
-app.put('/api/product/:pid', async (req, res) => {
-    try {
-        const productId = parseInt(req.params.pid)
+// Definir las demás rutas para las operaciones CRUD de productos aquí...
 
-        //obtengo los datos del producto a actualizar
+// Ruta para actualizar un producto por su ID
+app.put('/api/products/:productId', async (req, res) => {
+    try {
+        const productId = parseInt(req.params.productId)
+
+        // Obtener los datos del producto a actualizar
         const { title, description, price, thumbnail, code, stock } = req.body
 
-        // verificacion de los campos
+        // Verificación de los campos
         if (!title || !description || !price || !thumbnail || !code || !stock) {
             return res.status(400).send('Todos los campos son obligatorios')
         }
 
-        // Actualizacion del prducto en productos.json
+        // Actualización del producto en products.json
         await productManager.updateProduct(productId, { title, description, price, thumbnail, code, stock })
 
         res.status(200).send(`Producto con ID ${productId} actualizado correctamente`)
     } catch (error) {
-
         console.error('Error al actualizar el producto:', error)
         res.status(500).send('Error interno del servidor al actualizar el producto')
     }
 })
 
-app.delete('/api/product/:pid', async (req, res) => {
+// Ruta para eliminar un producto por su ID
+app.delete('/api/products/:productId', async (req, res) => {
     try {
-
-        const productId = parseInt(req.params.pid)
+        const productId = parseInt(req.params.productId)
         await productManager.deleteProduct(productId)
-
         res.status(200).send(`Producto con ID ${productId} eliminado correctamente`)
     } catch (error) {
-
         console.error('Error al eliminar el producto:', error)
         res.status(500).send('Error interno del servidor al eliminar el producto')
     }
 })
 
-
-app.get('/products', async (req, res) => {
-
+// Ruta para obtener todos los productos
+app.get('/api/products', async (req, res) => {
     try {
-
-
-
         const limit = parseInt(req.query.limit)
-
         const products = await productManager.getProducts()
-
         if (limit) {
-
             const prods = products.slice(0, limit)
-
-           return  res.json(prods)
-
+            return res.json(prods)
         }
-
         return res.json(products)
-
-
-
     } catch (error) {
-
         console.error('Error al obtener productos:', error)
-
         res.status(500).send('Error al obtener productos')
-
     }
-
 })
 
-app.get('/api/product/:pid', async (req, res) => {
+// Ruta para obtener un producto por su ID
+app.get('/api/products/:productId', async (req, res) => {
     try {
-        const productId = parseInt(req.params.pid)
+        const productId = parseInt(req.params.productId)
         const product = await productManager.getProductsById(productId)
-        
         if (product) {
             res.json(product)
         } else {
@@ -138,8 +122,7 @@ app.get('/api/product/:pid', async (req, res) => {
     }
 })
 
-
-const PORT = 3000
+const PORT = 8080
 app.listen(PORT, () => {
     console.log(`Servidor Express en funcionamiento en el puerto ${PORT}`)
 })

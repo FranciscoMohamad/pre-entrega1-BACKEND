@@ -1,98 +1,143 @@
-const fs = require('fs').promises
-const express = require('express')
-const router = express.Router() // Importa express y crea una instancia de Router
+const fs = require('fs').promises;
+const express = require('express');
 
-class ProductManager {
-    constructor(filePath) {
-        this.path = filePath
+class CartManager {
+    constructor() {
+        this.cartFilePath = 'carrito.json';
+        this.router = express.Router();
+        this.router.get('/', this.getAllCartsHandler.bind(this));
+        this.router.post('/', this.createCartHandler.bind(this));
+        this.router.get('/:cartId', this.getCartByIdHandler.bind(this));
+        this.router.post('/:cartId/products/:productId', this.addProductToCartHandler.bind(this));
+        this.nextCartId = this.getNextCartId();
     }
 
-    async guardarProductosEnArchivo(products) {
+    async getAllCartsHandler(req, res) {
         try {
-            await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'))
-            console.log('Productos guardados en el archivo products.json')
-        } catch (err) {
-            console.error('Error al guardar productos:', err)
-        }
-    }
-
-    async getProducts() {
-        try {
-            const productsData = await fs.readFile(this.path, 'utf8')
-            return JSON.parse(productsData) || []
+            const carts = await this.readCarts();
+            res.json(carts);
         } catch (error) {
-            throw new Error('Error al leer los productos')
+            console.error('Error al obtener los carritos:', error);
+            res.status(500).send('Error interno del servidor');
         }
     }
 
-    async getProductsById(id) {
-        const prods = await this.getProducts()
-        const product = prods.find(prod => prod.id === id)
-
-        if (product) {
-            return product
-        } else {
-            console.error("Product not found")
-        }
-    }
-
-    async updateProduct(id, updates) {
-        const prods = await this.getProducts()
-        const productIndex = prods.findIndex(prod => prod.id === id)
-
-        if (productIndex !== -1) {
-            prods[productIndex] = { ...prods[productIndex], ...updates }
-            await this.guardarProductosEnArchivo(prods)
-            console.log(`Producto con ID ${id} actualizado`)
-        } else {
-            console.error("Producto no encontrado")
-        }
-    }
-
-    async deleteProduct(id) {
-        const prods = await this.getProducts()
-        const productIndex = prods.findIndex(prod => prod.id === id)
-
-        console.log("ID del producto a eliminar:", id)
-        console.log("Índice del producto en el arreglo:", productIndex)
-        console.log("Productos antes de la eliminación:", prods)
-
-        if (productIndex !== -1) {
-            prods.splice(productIndex, 1)
-            await this.guardarProductosEnArchivo(prods)
-            console.log(`Producto con ID ${id} eliminado`)
-        } else {
-            console.error("Producto no encontrado")
-        }
-
-        console.log("Productos después de la eliminación:", prods)
-    }
-
-    // Método router que devuelve el enrutador
-    router() {
-        router.get('/products', this.getAllProducts.bind(this))
-        return router
-    }
-
-    async getAllProducts(req, res) {
+    async createCartHandler(req, res) {
         try {
-            const products = await this.getProducts()
-            res.json(products)
+            const newCart = await this.createCart();
+            res.status(201).json(newCart);
         } catch (error) {
-            console.error('Error al obtener productos:', error)
-            res.status(500).send('Error al obtener productos')
+            console.error('Error al crear el carrito:', error);
+            res.status(500).send('Error interno del servidor');
         }
+    }
+
+    async getCartByIdHandler(req, res) {
+        try {
+            const cartId = parseInt(req.params.cartId);
+            const cart = await this.getCartById(cartId);
+            res.json(cart);
+        } catch (error) {
+            console.error('Error al obtener el carrito por ID:', error);
+            res.status(500).send('Error interno del servidor');
+        }
+    }
+
+    async addProductToCartHandler(req, res) {
+        try {
+            const cartId = parseInt(req.params.cartId)
+            const productId = parseInt(req.params.productId)
+            const quantity = req.body.quantity || 1; // Establecer el valor predeterminado a 1 si no se proporciona en la solicitud
+            const updatedCart = await this.addProductToCart(cartId, productId, quantity)
+            res.json(updatedCart)
+        } catch (error) {
+            console.error('Error al agregar producto al carrito:', error)
+            res.status(500).send('Error interno del servidor')
+        }
+    }
+
+    async readCarts() {
+        try {
+            const cartsData = await fs.readFile(this.cartFilePath, 'utf8');
+            return JSON.parse(cartsData) || [];
+        } catch (error) {
+            throw new Error('Error al leer los carritos existentes');
+        }
+    }
+
+    async saveCarts(carts) {
+        try {
+            await fs.writeFile(this.cartFilePath, JSON.stringify(carts, null, 2));
+        } catch (error) {
+            throw new Error('Error al guardar los carritos');
+        }
+    }
+
+    async getNextCartId() {
+        try {
+            const carts = await this.readCarts();
+            const maxId = carts.reduce((max, cart) => Math.max(max, cart.id), 0);
+            return maxId + 1;
+        } catch (error) {
+            console.error('Error al obtener el próximo ID de carrito:', error);
+            throw error;
+        }
+    }
+
+    async createCart() {
+        try {
+            const newCartId = await this.getNextCartId(); // Obtenemos el próximo ID de carrito
+            const newCart = {
+                id: newCartId, // Asignamos el nuevo ID al carrito
+                products: []
+            };
+    
+            const carts = await this.readCarts();
+            carts.push(newCart);
+            await this.saveCarts(carts);
+    
+            return newCart;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async getCartById(cartId) {
+        try {
+            const carts = await this.readCarts();
+            const cart = carts.find(cart => cart.id === cartId);
+
+            if (cart) {
+                return cart;
+            } else {
+                throw new Error('Carrito no encontrado');
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async addProductToCart(cartId, productId, quantity = 1) {
+        try {
+            const carts = await this.readCarts();
+            const cart = carts.find(cart => cart.id === cartId);
+
+            if (cart) {
+                cart.products.push({ id: productId, quantity });
+                await this.saveCarts(carts);
+                return cart;
+            } else {
+                throw new Error('Carrito no encontrado');
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Método para obtener el router
+    getRouter() {
+        return this.router;
     }
 }
 
-module.exports = ProductManager
-
-// Prueba
-const main = async () => {
-    const productManager = new ProductManager("products.json")
-    console.log(await productManager.getProducts())
-    console.log(await productManager.getProductsById(1))
-    await productManager.updateProduct(2, { title: "updated product" })
-    await productManager.deleteProduct(2)
-}
-main()
+module.exports = CartManager;
