@@ -8,8 +8,8 @@ class ProductManager {
 
     async guardarProductosEnArchivo(products) {
         try {
-            await fs.promises.writeFile(this.path, JSON.stringify(products, null, '\t'))
-            console.log('Productos guardados en el archivo products.json')
+            await fs.writeFile(this.path, JSON.stringify(products, null, '\t'))
+            // console.log('Productos guardados en el archivo products.json')
         } catch (err) {
             console.error('Error al guardar productos:', err)
         }
@@ -20,6 +20,7 @@ class ProductManager {
             const productsData = await fs.readFile(this.path, 'utf8')
             return JSON.parse(productsData) || []
         } catch (error) {
+            console.error('Error al leer los productos:', error)
             throw new Error('Error al leer los productos')
         }
     }
@@ -35,16 +36,18 @@ class ProductManager {
         }
     }
 
-    async updateProduct(id, updates) {
+    async updateProduct(id, title, updates) {
         const prods = await this.getProducts()
-        const productIndex = prods.findIndex(prod => prod.id === id)
-
+        const productIndex = prods.findIndex(prod => prod.id === id && prod.title === title)
+    
         if (productIndex !== -1) {
             prods[productIndex] = { ...prods[productIndex], ...updates }
             await this.guardarProductosEnArchivo(prods)
-            console.log(`Producto con ID ${id} actualizado`)
+            // console.log(`Producto con ID ${id} actualizado`)
+            return // Retorna después de guardar los cambios
         } else {
-            console.error("Producto no encontrado")
+            // console.error("Producto no encontrado")
+            return // Evitar acciones adicionales después de este punto
         }
     }
 
@@ -52,19 +55,20 @@ class ProductManager {
         const prods = await this.getProducts()
         const productIndex = prods.findIndex(prod => prod.id === id)
 
-        console.log("ID del producto a eliminar:", id)
-        console.log("Índice del producto en el arreglo:", productIndex)
-        console.log("Productos antes de la eliminación:", prods)
+        // console.log("ID del producto a eliminar:", id)
+        // console.log("Índice del producto en el arreglo:", productIndex)
+        // console.log("Productos antes de la eliminación:", prods)
 
         if (productIndex !== -1) {
             prods.splice(productIndex, 1)
             await this.guardarProductosEnArchivo(prods)
-            console.log(`Producto con ID ${id} eliminado`)
+            // console.log(`Producto con ID ${id} eliminado`)
+            return // Retorna después de guardar los cambios
         } else {
-            console.error("Producto no encontrado")
+            // console.error("Producto no encontrado")
+            return // Evitar acciones adicionales después de este punto
         }
 
-        console.log("Productos después de la eliminación:", prods)
     }
 
     // Método router que devuelve un nuevo enrutador cada vez
@@ -90,9 +94,9 @@ module.exports = ProductManager
 // Prueba
 const main = async () => {
     const productManager = new ProductManager("products.json")
-    console.log(await productManager.getProducts())
-    console.log(await productManager.getProductsById(3))
-    await productManager.updateProduct(2, { title: "updated product" })
-    await productManager.deleteProduct(2)
+    // console.log(await productManager.getProducts())
+    // console.log(await productManager.getProductsById(4))
+    await productManager.updateProduct(13, { title: "updated product" })
+    await productManager.deleteProduct(7)
 }
 main()

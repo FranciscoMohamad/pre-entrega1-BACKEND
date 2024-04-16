@@ -18,39 +18,13 @@
 		"stock": 3
 	},
 	{
-		"id": 5,
-		"title": "soy un titulo 5",
-		"description": "soy una descripcion",
-		"price": 20,
-		"thumbnail": "no image",
-		"code": "sdasd16xcv12",
-		"stock": 3
-	},
-	{
 		"id": 6,
-		"title": "soy un titulo 6",
+		"title": "updated product",
 		"description": "soy una descripcion",
 		"price": 20,
 		"thumbnail": "no image",
 		"code": "sdasd1sdg12",
 		"stock": 3
-	},
-	{
-		"id": 7,
-		"title": "soy un titulo 7",
-		"description": "soy una descripcion",
-		"price": 20,
-		"thumbnail": "no image",
-		"code": "sdasd16asd2",
-		"stock": 3
-	},
-	{
-		"id": 8,
-		"title": "Nuevo Producto",
-		"description": "Descripci�n del nuevo producto",
-		"price": 50,
-		"code": "abc123",
-		"stock": 10
 	},
 	{
 		"id": 9,
@@ -77,16 +51,8 @@
 		"stock": 10
 	},
 	{
-		"id": 12,
-		"title": "Nuevo Producto",
-		"description": "Descripci�n del nuevo producto",
-		"price": 50,
-		"code": "abc123",
-		"stock": 10
-	},
-	{
 		"id": 13,
-		"title": "Nuevo Producto",
+		"title": "updated product",
 		"description": "Descripci�n del nuevo producto",
 		"price": 50,
 		"code": "abc123",

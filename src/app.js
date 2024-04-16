@@ -1,18 +1,56 @@
 const express = require('express')
+const mongoose = require('mongoose')
+
+//handlebars-websockets
+const handlebars = require('express-handlebars')
+const { Server } = require('socket.io')
+
+//Routes
+const productRouter = require('./routes/product.router')
+
 const bodyParser = require('body-parser')
 const ProductManager = require('./productManager')
-const CartManager = require('./CartManager')
+const CartManager = require('./cartManager')
 
 const app = express()
 const productManager = new ProductManager("products.json")
 const cartManager = new CartManager()
 
+// configurar handlebars
+app.engine('handlebars', handlebars.engine())
+app.set('views', `${__dirname}/views`)
+app.set('view engine', 'handlebars')
+
+// permitir envío de información mediante formularios y JSON
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
+
+// setear carpeta public como estática
+app.use(express.static(`${__dirname}/../public`))
+
+app.use('/', require('./routes/product.router'))
+
+
 app.use(bodyParser.json())
+
+
+const httpServer = app.listen(8080, () => {
+    console.log('Servidor listo!')
+})
+
+// creamos un servidor para WS desde el servidor HTTP que nos da express
+const socketServer = new Server(httpServer)
+
+// escuchamos al evento "cliente conectado"
+socketServer.on('connection', socket => {
+    console.log(`Nuevo cliente conectado: ${socket.id}`)
+})
 
 // Definir el enrutador de carritos
 const cartRouter = cartManager.getRouter()
 app.use('/api/carts', cartRouter)
 
+                //RUTAS CRUD en localHost
 // Método POST para agregar un nuevo producto
 app.post('/api/products', async (req, res) => {
     try {
@@ -122,7 +160,24 @@ app.get('/api/products/:productId', async (req, res) => {
     }
 })
 
-const PORT = 8080
+const main = async () => {
+    try {
+        await mongoose.connect(
+            'mongodb+srv://elmoha624:Horacio2001@mydatabase.d2i56hu.mongodb.net/?retryWrites=true&w=majority&appName=MyDataBase',
+            {
+                dbName: 'MyDataBase'
+            }
+        );
+        console.log('Conexión exitosa a la base de datos MongoDB');
+    } catch (error) {
+        console.error('Error al conectar con la base de datos MongoDB:', error);
+        throw error; // Agregamos esto para propagar el error y detener la ejecución si hay un problema de conexión
+    }
+}
+
+const PORT = 8081
 app.listen(PORT, () => {
     console.log(`Servidor Express en funcionamiento en el puerto ${PORT}`)
 })
+
+main()
