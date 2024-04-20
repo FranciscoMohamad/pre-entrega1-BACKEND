@@ -5,7 +5,7 @@ const mongoosePaginate = require('mongoose-paginate-v2')
 const schema = new mongoose.Schema({
 
     // indicamos a mongoose que nuestros documentos 'products' tendrán un campo firstName del tipo string
-    id: {type: Number, required: true},
+    id: {type: String, required: true},
     title: {type: String, required: true},
     description: {type: String, required: true},
     price: {type: Number, required: true},
