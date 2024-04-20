@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 const { Product } = require('./models');
+const { Types } = mongoose;
 
 class ProductManager {
     async addProduct(newProduct) {
         try {
+            // Elimina la propiedad _id del nuevo producto para que MongoDB genere el ID automáticamente
+            delete newProduct._id;
             const product = new Product(newProduct);
             await product.save();
             console.log('Producto agregado correctamente');
@@ -25,6 +28,11 @@ class ProductManager {
 
     async getProductById(id) {
         try {
+            // Verifica si el id es válido antes de realizar la consulta
+            if (!Types.ObjectId.isValid(id)) {
+                throw new Error('ID de producto no válido');
+            }
+    
             const product = await Product.findById(id);
             if (product) {
                 return product;

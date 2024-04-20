@@ -65,7 +65,7 @@ app.post('/api/products', async (req, res) => {
         let newId
         do {
             newId = Math.floor(Math.random() * 1000000)
-        } while (await productManager.getProductsById(newId))
+        } while (await productManager.getProductById(newId))
 
         const { title, description, code, price, status, stock, category, thumbnails } = req.body
 
@@ -148,7 +148,8 @@ app.get('/api/products', async (req, res) => {
 app.get('/api/products/:productId', async (req, res) => {
     try {
         const productId = parseInt(req.params.productId)
-        const product = await productManager.getProductsById(productId)
+        const product = await productManager.getProductById(id.toString());
+
         if (product) {
             res.json(product)
         } else {
