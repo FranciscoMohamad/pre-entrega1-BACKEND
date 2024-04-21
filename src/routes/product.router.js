@@ -1,17 +1,50 @@
-const { Router } = require('express')
+const express = require('express')
+const router = express.Router()
 const productsModel = require('../models/product.model')
 
-const router = Router()
-
+// Ruta para obtener todos los productos con paginación y filtrado
 router.get('/products', async (req, res) => {
+    try {
+        // Parámetros de consulta
+        const { limit = 10, page = 1, sort, query } = req.query;
 
-    const page = req.query.page || 1
-    const products = await productsModel.paginate({}, { limit:5, page, lean: true })
-        console.log(products)
-        res.render('products', {
-            title:'todos los productos',
-            products
-        })
-})
+        // Convertir a números
+        const limitNum = parseInt(limit);
+        const pageNum = parseInt(page);
 
-module.exports = router
+        // Calcular el índice de inicio y fin para la paginación
+        const startIndex = (pageNum - 1) * limitNum;
+        const endIndex = pageNum * limitNum;
+
+        // Construir el objeto de consulta
+        const queryObj = query ? { $text: { $search: query } } : {};
+
+        // Ejecutar la consulta
+        const products = await productsModel.find(queryObj) // Cambiado de 'product' a 'productsModel'
+            .sort(sort)
+            .limit(limitNum)
+            .skip(startIndex);
+
+        // Calcular la cantidad total de productos
+        const totalProducts = await productsModel.countDocuments(queryObj); // Cambiado de 'product' a 'productsModel'
+
+        // Calcular el total de páginas
+        const totalPages = Math.ceil(totalProducts / limitNum);
+
+        // Crear objeto de respuesta
+        const result = {
+            products,
+            totalPages,
+            currentPage: pageNum,
+            totalProducts
+        };
+
+        // Enviar respuesta
+        res.json(result);
+    } catch (error) {
+        console.error('Error al obtener los productos:', error);
+        res.status(500).json({ error: 'Error al obtener los productos' });
+    }
+});
+
+module.exports = router;
