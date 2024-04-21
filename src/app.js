@@ -54,24 +54,12 @@ app.use('/api/carts', cartRouter)
 // Método POST para agregar un nuevo producto
 app.post('/api/products', async (req, res) => {
     try {
-        const requiredFields = ['title', 'description', 'code', 'price', 'status', 'stock', 'category']
-        for (const field of requiredFields) {
-            if (!(field in req.body)) {
-                return res.status(400).send(`El campo '${field}' es obligatorio`)
-            }
-        }
-
-        // ID único
-        let newId
-        do {
-            newId = Math.floor(Math.random() * 1000000)
-        } while (await productManager.getProductById(newId))
+        // ... Validación de campos y otros procesos ...
 
         const { title, description, code, price, status, stock, category, thumbnails } = req.body
 
-        // Nuevo producto con id autogenerado
+        // Nuevo producto sin especificar el ID
         const newProduct = {
-            id: newId,
             title,
             description,
             code,
@@ -82,7 +70,7 @@ app.post('/api/products', async (req, res) => {
             thumbnails: thumbnails !== undefined ? thumbnails : []
         }
 
-        await productManager.addProducts(newProduct)
+        await productManager.addProduct(newProduct)
 
         res.status(201).send('Producto agregado correctamente')
     } catch (error) {
@@ -131,18 +119,13 @@ app.delete('/api/products/:productId', async (req, res) => {
 // Ruta para obtener todos los productos
 app.get('/api/products', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit)
-        const products = await productManager.getProducts()
-        if (limit) {
-            const prods = products.slice(0, limit)
-            return res.json(prods)
-        }
-        return res.json(products)
+        const products = await productManager.getAllProducts();
+        res.json(products);
     } catch (error) {
-        console.error('Error al obtener productos:', error)
-        res.status(500).send('Error al obtener productos')
+        console.error('Error al obtener productos:', error);
+        res.status(500).send('Error al obtener productos');
     }
-})
+});
 
 // Ruta para obtener un producto por su ID
 app.get('/api/products/:productId', async (req, res) => {

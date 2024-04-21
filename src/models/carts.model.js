@@ -6,7 +6,6 @@ const collection = 'carts'
 const schema = new mongoose.Schema({
 
     // indicamos a mongoose que nuestros documentos 'carts' tendrán un campo firstName del tipo string
-    id: Number,
     title: String,
     description: String,
     price: Number,
